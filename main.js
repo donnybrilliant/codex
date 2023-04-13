@@ -39,21 +39,19 @@ function generateUniqueId() {
 }
 
 function chatStripe(isAi, value, uniqueId) {
-  return (
-    `
-    <div class="wrapper ${isAi && 'ai'}">
+  return `
+    <div class="wrapper ${isAi && "ai"}">
     <div class="chat">
     <div class="profile">
-    <img src="${isAi ? bot : user}" alt="${isAi ? 'bot' : 'user'}" />
+    <img src="${isAi ? bot : user}" alt="${isAi ? "bot" : "user"}" />
     </div>
     <div class="message" id=${uniqueId}>${value}</div>
     </div>
     </div>
-    `
-    );
+    `;
 }
 
-const handleSubmit = (event) => {
+const handleSubmit = async (event) => {
   event.preventDefault();
   const data = new FormData(form);
 
@@ -68,6 +66,30 @@ const handleSubmit = (event) => {
   const messageDiv = document.getElementById(uniqueId);
 
   loader(messageDiv);
+
+  //fetch data
+  const response = await fetch("http://localhost:3000", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      prompt: data.get("prompt"),
+    }),
+  });
+
+  clearInterval(loadInterval);
+  messageDiv.innerHTML = "";
+
+  if (response.ok) {
+    const data = await response.json();
+    const parsedData = data.bot.trim();
+    typeText(messageDiv, parsedData);
+  } else {
+    const err = await response.text();
+    messageDiv.innerHTML = "Something went wrong";
+    console.log(err);
+  }
 };
 
 form.addEventListener("submit", handleSubmit);
@@ -75,4 +97,4 @@ form.addEventListener("keyup", (event) => {
   if (event.key === "Enter") {
     handleSubmit(event);
   }
-}); 
+});
