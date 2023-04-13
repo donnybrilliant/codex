@@ -50,3 +50,22 @@ function chatStripe(isAi, value, uniqueId) {
     </div>
     `;
 }
+
+const handleSubmit = async (event) => {
+  event.preventDefault();
+  const data = new FormData(event.target);
+
+  // users chatstripe
+  chatContainer.innerHTML += chatStripe(false, data.get("prompt"));
+  form.reset();
+
+  // bots chatstripe
+  const uniqueId = generateUniqueId();
+  chatContainer.innerHTML += chatStripe(true, " ", uniqueId);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+  const messageDiv = document.getElementById(uniqueId);
+
+  loader(messageDiv);
+};
+
+form.addEventListener("submit", handleSubmit);
