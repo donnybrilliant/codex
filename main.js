@@ -53,7 +53,7 @@ function chatStripe(isAi, value, uniqueId) {
 
 const handleSubmit = async (event) => {
   event.preventDefault();
-  const data = new FormData(event.target);
+  const data = new FormData(form);
 
   // users chatstripe
   chatContainer.innerHTML += chatStripe(false, data.get("prompt"));
