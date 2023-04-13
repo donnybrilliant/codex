@@ -11,7 +11,7 @@ function loader(element) {
   loadInterval = setInterval(() => {
     element.textContent += ".";
 
-    if (element.textContent === "...") {
+    if (element.textContent === "....") {
       element.textContent = "";
     }
   }, 300);
@@ -39,19 +39,21 @@ function generateUniqueId() {
 }
 
 function chatStripe(isAi, value, uniqueId) {
-  return `
+  return (
+    `
     <div class="wrapper ${isAi && 'ai'}">
     <div class="chat">
     <div class="profile">
     <img src="${isAi ? bot : user}" alt="${isAi ? 'bot' : 'user'}" />
     </div>
-    <div class="message" id="${uniqueId}>${value}</div>
+    <div class="message" id=${uniqueId}>${value}</div>
     </div>
     </div>
-    `;
+    `
+    );
 }
 
-const handleSubmit = async (event) => {
+const handleSubmit = (event) => {
   event.preventDefault();
   const data = new FormData(form);
 
@@ -69,3 +71,8 @@ const handleSubmit = async (event) => {
 };
 
 form.addEventListener("submit", handleSubmit);
+form.addEventListener("keyup", (event) => {
+  if (event.key === "Enter") {
+    handleSubmit(event);
+  }
+}); 
