@@ -68,7 +68,7 @@ const handleSubmit = async (event) => {
   loader(messageDiv);
 
   //fetch data
-  const response = await fetch("http://localhost:3000", {
+  const response = await fetch("https://codex-1air.onrender.com", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
