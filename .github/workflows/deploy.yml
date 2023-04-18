@@ -22,7 +22,7 @@ concurrency:
 
 defaults:
   run:
-    working-directory: /client/
+    working-directory: /client
 
 jobs:
   # Single deploy job since we're just deploying
@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload dist repository
-          path: "./client/dist"
+          path: "/client/dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
