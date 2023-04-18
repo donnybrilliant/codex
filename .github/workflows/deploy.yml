@@ -22,7 +22,7 @@ concurrency:
 
 defaults:
   run:
-    working-directory: ./client/
+    working-directory: /client/
 
 jobs:
   # Single deploy job since we're just deploying
@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: 18
           cache: "npm"
-          cache-dependency-path: "./client/package-lock.json"
+          cache-dependency-path: "/client/package-lock.json"
       - name: Install dependencies
         run: npm install
       - name: Build
