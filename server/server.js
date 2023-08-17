@@ -73,6 +73,7 @@ app.post("/image", async (req, res) => {
     const image_url = response.data.data[0].url;
 
     res.status(200).send({
+      reponse,
       bot: image_url,
     });
   } catch (error) {
