@@ -1,27 +1,25 @@
 import express from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 
 dotenv.config();
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(configuration);
-
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 app.get("/", (req, res) => {
   res.status(200).send("Hello World!");
 });
 
-app.post("/", async (req, res) => {
+app.post("/old", async (req, res) => {
   try {
     const prompt = req.body.prompt;
-    const response = await openai.createCompletion({
+    const response = await openai.completions.create({
       model: "text-davinci-003",
       prompt: `${prompt}`,
       temperature: 0,
@@ -32,18 +30,72 @@ app.post("/", async (req, res) => {
     });
 
     res.status(200).send({
-      bot: response.data.choices[0].text,
+      bot: response.choices[0].text,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error });
+  }
+});
+
+app.post("/chat", async (req, res) => {
+  try {
+    const prompt = req.body.prompt;
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: `${prompt}` }],
+    });
+    res.status(200).send({
+      bot: response,
+    });
+  } catch (error) {
+    if (error instanceof OpenAI.APIError) {
+      console.error(error.status); // e.g. 401
+      console.error(error.message); // e.g. The authentication token you passed was invalid...
+      console.error(error.code); // e.g. 'invalid_api_key'
+      console.error(error.type); // e.g. 'invalid_request_error'
+      // Send error response
+      res.status(error.status || 500).send({ error: error.message });
+    } else {
+      // Non-API error
+      console.log(error);
+      res.status(500).send({ error: "An unexpected error occurred." });
+    }
   }
 });
 
 app.post("/gpt-4", async (req, res) => {
   try {
     const prompt = req.body.prompt;
-    const response = await openai.createCompletion({
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [{ role: "system", content: "string" }],
+      messages: [{ role: "user", content: `${prompt}` }],
+    });
+
+    res.status(200).send({
+      bot: response,
+    });
+  } catch (error) {
+    if (error instanceof OpenAI.APIError) {
+      console.error(error.status); // e.g. 401
+      console.error(error.message); // e.g. The authentication token you passed was invalid...
+      console.error(error.code); // e.g. 'invalid_api_key'
+      console.error(error.type); // e.g. 'invalid_request_error'
+      // Send error response
+      res.status(error.status || 500).send({ error: error.message });
+    } else {
+      // Non-API error
+      console.log(error);
+      res.status(500).send({ error: "An unexpected error occurred." });
+    }
+  }
+});
+
+app.post("/completions", async (req, res) => {
+  try {
+    const prompt = req.body.prompt;
+    const response = await openai.completions.create({
       model: "text-davinci-003",
       prompt: `${prompt}`,
       temperature: 0,
@@ -53,32 +105,45 @@ app.post("/gpt-4", async (req, res) => {
       presence_penalty: 0,
     });
 
+    console.log(response);
+
     res.status(200).send({
-      bot: response.data.choices[0].text,
+      bot: response.choices[0].text,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({ error });
+    if (error instanceof OpenAI.APIError) {
+      console.error(error.status); // e.g. 401
+      console.error(error.message); // e.g. The authentication token you passed was invalid...
+      console.error(error.code); // e.g. 'invalid_api_key'
+      console.error(error.type); // e.g. 'invalid_request_error'
+    } else {
+      // Non-API error
+      console.log(error);
+    }
   }
 });
 
 app.post("/image", async (req, res) => {
   try {
     const prompt = req.body.prompt;
-    const response = await openai.createImage({
-      prompt: prompt,
-      n: 1,
-      size: "1024x1024",
-    });
-    const image_url = response.data.data[0].url;
+    const response = await openai.images.generate({ prompt: `${prompt}` });
 
     res.status(200).send({
-      reponse,
-      bot: image_url,
+      bot: response,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).send({ error });
+    if (error instanceof OpenAI.APIError) {
+      console.error(error.status); // e.g. 401
+      console.error(error.message); // e.g. The authentication token you passed was invalid...
+      console.error(error.code); // e.g. 'invalid_api_key'
+      console.error(error.type); // e.g. 'invalid_request_error'
+      // Send error response
+      res.status(error.status || 500).send({ error: error.message });
+    } else {
+      // Non-API error
+      console.log(error);
+      res.status(500).send({ error: "An unexpected error occurred." });
+    }
   }
 });
 
